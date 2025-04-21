@@ -4,8 +4,8 @@ main = "src/index.ts"
 
 [vars]
 API_LIST = "[\"https://gk-app-client.onrender.com\", \"https://gk-app-server.onrender.com/api/v1/health\"]"
-MAX_RETRIES = "3"
-RETRY_INTERVAL = "10000"
+MAX_RETRIES = "5"
+RETRY_INTERVAL = "30000"
 
 [triggers]
 crons = ["*/5 * * * *"] # 每 5 分鐘執行一次

@@ -8,18 +8,32 @@ export interface Env {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const callApiWithRetry = async (url: string, maxRetries: number, retryInterval: number): Promise<boolean> => {
+const callApiWithRetry = async (
+    url: string,
+    maxRetries: number,
+    retryInterval: number,
+    timeoutMs = 10000,
+): Promise<boolean> => {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
         try {
-            const res = await fetch(url, { method: 'GET' });
+            const res = await fetch(url, { method: 'GET', signal: controller.signal });
+            clearTimeout(timeout);
+
             if (res.ok) {
                 console.log(`✅ [Attempt ${attempt}] ${url} responded successfully.`);
                 return true;
             } else {
                 console.warn(`⚠️ [Attempt ${attempt}] ${url} returned status: ${res.status}`);
             }
-        } catch (err) {
-            console.error(`❌ [Attempt ${attempt}] ${url} failed:`, err);
+        } catch (err: any) {
+            if (err.name === 'AbortError') {
+                console.error(`⏱️ [Attempt ${attempt}] ${url} request timed out.`);
+            } else {
+                console.error(`❌ [Attempt ${attempt}] ${url} failed:`, err);
+            }
         }
 
         if (attempt < maxRetries) {
@@ -37,7 +51,7 @@ export default {
         const maxRetries = Number.parseInt(env.MAX_RETRIES || '3', 10);
         const retryInterval = Number.parseInt(env.RETRY_INTERVAL || '10000', 10);
 
-        console.log('⏰ Scheduled task started');
+        console.log('⏰ Scheduled task started for API_LIST, ', apiList);
 
         for (const url of apiList) {
             const success = await callApiWithRetry(url, maxRetries, retryInterval);
