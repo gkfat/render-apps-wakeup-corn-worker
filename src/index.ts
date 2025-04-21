@@ -14,7 +14,7 @@ const callApiWithRetry = async (
     url: string,
     maxRetries: number,
     retryInterval: number,
-    timeoutMs = 10000,
+    timeoutMs = 30000,
 ): Promise<boolean> => {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         const controller = new AbortController();
@@ -52,7 +52,7 @@ export default {
         const maxRetries = Number.parseInt(env.MAX_RETRIES || '3', 10);
         const retryInterval = Number.parseInt(env.RETRY_INTERVAL || '10000', 10);
 
-        console.log('⏰ Scheduled task started for API_LIST, ', API_LIST);
+        console.log('⏰ Scheduled task started');
 
         for (const url of API_LIST) {
             const success = await callApiWithRetry(url, maxRetries, retryInterval);

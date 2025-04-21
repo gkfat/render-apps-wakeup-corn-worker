@@ -4,7 +4,7 @@ main = "src/index.ts"
 
 [vars]
 MAX_RETRIES = "5"
-RETRY_INTERVAL = "30000"
+RETRY_INTERVAL = "1000"
 
 [triggers]
 crons = ["*/5 * * * *"] # 每 5 分鐘執行一次
