@@ -1,5 +1,7 @@
 import type { ExecutionContext, ScheduledController, ScheduledEvent } from '@cloudflare/workers-types';
 
+import { API_LIST } from './api-list';
+
 export interface Env {
     API_LIST: string; // JSON 字串格式的 API 陣列
     MAX_RETRIES: string; // 數字字串：最大重試次數
@@ -47,13 +49,12 @@ const callApiWithRetry = async (
 
 export default {
     async scheduled(controller: ScheduledController, event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-        const apiList: string[] = JSON.parse(env.API_LIST || '[]');
         const maxRetries = Number.parseInt(env.MAX_RETRIES || '3', 10);
         const retryInterval = Number.parseInt(env.RETRY_INTERVAL || '10000', 10);
 
-        console.log('⏰ Scheduled task started for API_LIST, ', apiList);
+        console.log('⏰ Scheduled task started for API_LIST, ', API_LIST);
 
-        for (const url of apiList) {
+        for (const url of API_LIST) {
             const success = await callApiWithRetry(url, maxRetries, retryInterval);
             if (!success) {
                 console.error(`🔥 Giving up on ${url}`);
